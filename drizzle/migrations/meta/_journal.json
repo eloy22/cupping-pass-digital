@@ -8,6 +8,13 @@
       "when": 1790707902257,
       "tag": "0000_create_customers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790719918313,
+      "tag": "0001_restrict_customers_read_update",
+      "breakpoints": true
     }
   ]
 }
