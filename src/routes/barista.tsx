@@ -48,15 +48,17 @@ function PinPad({ onUnlock }: { onUnlock: () => void }) {
 
   function press(digit: string) {
     setWrong(false);
-    const next = (pin + digit).slice(0, 4);
-    setPin(next);
-    if (next.length === 4) {
-      if (next === BARISTA_PIN) onUnlock();
-      else {
-        setWrong(true);
-        setTimeout(() => setPin(""), 350);
+    setPin((current) => {
+      const next = (current + digit).slice(0, 4);
+      if (next.length === 4) {
+        if (next === BARISTA_PIN) onUnlock();
+        else {
+          setWrong(true);
+          setTimeout(() => setPin(""), 350);
+        }
       }
-    }
+      return next;
+    });
   }
 
   return (
