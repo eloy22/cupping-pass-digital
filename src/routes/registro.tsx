@@ -91,7 +91,7 @@ function Registro() {
       stamps: 0,
     };
 
-    if (dbError || !data) {
+    if (dbError) {
       setError("No hemos podido guardar tu pase. Inténtalo de nuevo.");
       return;
     }

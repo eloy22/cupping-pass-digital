@@ -36,11 +36,11 @@ type Customer = {
 };
 
 function Barista() {
-  const [unlocked, setUnlocked] = useState(false);
-  return unlocked ? <Counter /> : <PinPad onUnlock={() => setUnlocked(true)} />;
+  const [pin, setPin] = useState<string | null>(null);
+  return pin ? <Counter pin={pin} /> : <PinPad onUnlock={setPin} />;
 }
 
-function PinPad({ onUnlock }: { onUnlock: () => void }) {
+function PinPad({ onUnlock }: { onUnlock: (pin: string) => void }) {
   const [pin, setPin] = useState("");
   const [wrong, setWrong] = useState(false);
 
@@ -49,11 +49,12 @@ function PinPad({ onUnlock }: { onUnlock: () => void }) {
     setPin((current) => {
       const next = (current + digit).slice(0, 4);
       if (next.length === 4) {
-        if (next === BARISTA_PIN) setTimeout(onUnlock, 0);
-        else {
-          setWrong(true);
-          setTimeout(() => setPin(""), 350);
-        }
+        void verifyBaristaPin({ data: { pin: next } })
+          .then(() => onUnlock(next))
+          .catch(() => {
+            setWrong(true);
+            setTimeout(() => setPin(""), 350);
+          });
       }
       return next;
     });
