@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { SavePassActions } from "@/components/SavePass";
 import QRCode from "qrcode";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -28,8 +29,12 @@ export const Route = createFileRoute("/registro")({
       },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { id?: string } =>
+    typeof search["id"] === "string" && /^[0-9a-f-]{36}$/i.test(search["id"]) ? { id: search["id"] } : {},
   component: Registro,
 });
+
+const PASS_KEY = "cuppingpass:pass";
 
 type Pass = {
   id: string;
@@ -52,6 +57,41 @@ function Registro() {
   const [error, setError] = useState<string | null>(null);
   const [pass, setPass] = useState<Pass | null>(null);
   const [qr, setQr] = useState<string | null>(null);
+  const { id: urlId } = Route.useSearch();
+
+  async function showPass(data: Pass) {
+    const dataUrl = await QRCode.toDataURL(data.id, {
+      margin: 1,
+      width: 512,
+      color: { dark: "#1F1B16", light: "#FFFFFF" },
+    });
+    setPass(data);
+    setQr(dataUrl);
+    try {
+      localStorage.setItem(PASS_KEY, JSON.stringify(data));
+    } catch {}
+    if (urlId !== data.id) {
+      window.history.replaceState(null, "", `/registro?id=${data.id}`);
+    }
+  }
+
+  useEffect(() => {
+    let saved: Pass | null = null;
+    try {
+      const raw = localStorage.getItem(PASS_KEY);
+      if (raw) saved = JSON.parse(raw) as Pass;
+    } catch {}
+    if (urlId) {
+      void showPass(
+        saved?.id === urlId
+          ? saved
+          : { id: urlId, full_name: "", usual_order: "", milk_type: "", flavor_profile: "", decaf: false, stamps: 0 },
+      );
+    } else if (saved?.id) {
+      void showPass(saved);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,20 +136,16 @@ function Registro() {
       return;
     }
 
-    const dataUrl = await QRCode.toDataURL(data.id, {
-      margin: 1,
-      width: 512,
-      color: { dark: "#1F1B16", light: "#FFFFFF" },
-    });
-    setPass(data);
-    setQr(dataUrl);
+    await showPass(data);
   }
 
   if (pass) {
     return (
       <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-14">
         <p className="label-caps">Pase digital</p>
-        <h1 className="mt-2 text-4xl">Listo, {pass.full_name.split(" ")[0]}</h1>
+        <h1 className="mt-2 text-4xl">
+          {pass.full_name ? `Listo, ${pass.full_name.split(" ")[0]}` : "Tu pase"}
+        </h1>
 
         <div className="card-surface mt-8 overflow-hidden">
           <div className="flex items-baseline justify-between border-b border-border px-6 py-4">
@@ -119,6 +155,7 @@ function Registro() {
             <span className="label-caps">Miembro</span>
           </div>
 
+          {pass.full_name ? (
           <div className="px-6 py-6">
             <h2 className="text-3xl leading-tight">{pass.full_name}</h2>
             <dl className="mt-6 grid grid-cols-2 gap-5">
@@ -140,6 +177,7 @@ function Registro() {
               </div>
             </dl>
           </div>
+          ) : null}
 
           <div className="flex flex-col items-center gap-3 border-t border-border bg-secondary px-6 py-7">
             {qr ? (
@@ -150,6 +188,10 @@ function Registro() {
             </p>
           </div>
         </div>
+
+        <SavePassActions
+          shareUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/registro?id=${pass.id}`}
+        />
 
         <Link to="/" className="mt-8 text-center text-sm text-muted-foreground underline">
           Volver al inicio
