@@ -51,7 +51,7 @@ function PinPad({ onUnlock }: { onUnlock: () => void }) {
     setPin((current) => {
       const next = (current + digit).slice(0, 4);
       if (next.length === 4) {
-        if (next === BARISTA_PIN) onUnlock();
+        if (next === BARISTA_PIN) setTimeout(onUnlock, 0);
         else {
           setWrong(true);
           setTimeout(() => setPin(""), 350);
