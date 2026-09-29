@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customers: {
+        Row: {
+          created_at: string
+          decaf: boolean
+          flavor_profile: string
+          full_name: string
+          id: string
+          milk_type: string
+          phone: string
+          stamps: number
+          usual_order: string
+        }
+        Insert: {
+          created_at?: string
+          decaf?: boolean
+          flavor_profile: string
+          full_name: string
+          id?: string
+          milk_type: string
+          phone: string
+          stamps?: number
+          usual_order: string
+        }
+        Update: {
+          created_at?: string
+          decaf?: boolean
+          flavor_profile?: string
+          full_name?: string
+          id?: string
+          milk_type?: string
+          phone?: string
+          stamps?: number
+          usual_order?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
