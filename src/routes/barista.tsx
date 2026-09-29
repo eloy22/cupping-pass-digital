@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { addLoyaltyStamp, getCustomerById, verifyBaristaPin } from "@/lib/barista.functions";
 import { recommendedHopper, STAMP_GOAL } from "@/lib/coffee";
-
-const BARISTA_PIN = "2026";
 
 export const Route = createFileRoute("/barista")({
   head: () => ({

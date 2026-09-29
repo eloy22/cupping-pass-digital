@@ -69,19 +69,27 @@ function Registro() {
     }
 
     setSaving(true);
-    const { data, error: dbError } = await supabase
-      .from("customers")
-      .insert({
-        full_name: name,
-        phone: tel,
-        usual_order: usualOrder,
-        milk_type: milkType,
-        flavor_profile: flavorProfile,
-        decaf,
-      })
-      .select("id, full_name, usual_order, milk_type, flavor_profile, decaf, stamps")
-      .single();
+    const id = crypto.randomUUID();
+    const { error: dbError } = await supabase.from("customers").insert({
+      id,
+      full_name: name,
+      phone: tel,
+      usual_order: usualOrder,
+      milk_type: milkType,
+      flavor_profile: flavorProfile,
+      decaf,
+    });
     setSaving(false);
+
+    const data: Pass = {
+      id,
+      full_name: name,
+      usual_order: usualOrder,
+      milk_type: milkType,
+      flavor_profile: flavorProfile,
+      decaf,
+      stamps: 0,
+    };
 
     if (dbError || !data) {
       setError("No hemos podido guardar tu pase. Inténtalo de nuevo.");
