@@ -30,7 +30,7 @@ export const Route = createFileRoute("/registro")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>): { id?: string } =>
-    typeof search.id === "string" && /^[0-9a-f-]{36}$/i.test(search.id) ? { id: search.id } : {},
+    typeof search["id"] === "string" && /^[0-9a-f-]{36}$/i.test(search["id"]) ? { id: search["id"] } : {},
   component: Registro,
 });
 
