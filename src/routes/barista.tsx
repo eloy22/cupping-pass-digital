@@ -108,7 +108,7 @@ function KeyButton({ children, onClick }: { children: React.ReactNode; onClick: 
   );
 }
 
-function Counter() {
+function Counter({ pin }: { pin: string }) {
   const [scanning, setScanning] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -116,35 +116,28 @@ function Counter() {
 
   async function loadCustomer(id: string) {
     setMessage(null);
-    const { data, error } = await supabase
-      .from("customers")
-      .select("id, full_name, phone, usual_order, milk_type, flavor_profile, decaf, stamps")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (error || !data) {
+    try {
+      const data = await getCustomerById({ data: { pin, id } });
+      if (!data) {
+        setMessage("Pase no encontrado.");
+        return;
+      }
+      setCustomer(data);
+    } catch {
       setMessage("Pase no encontrado.");
-      return;
     }
-    setCustomer(data);
   }
 
   async function addStamp() {
     if (!customer) return;
     setBusy(true);
-    const next = customer.stamps >= STAMP_GOAL ? 1 : customer.stamps + 1;
-    const { data, error } = await supabase
-      .from("customers")
-      .update({ stamps: next })
-      .eq("id", customer.id)
-      .select("id, full_name, phone, usual_order, milk_type, flavor_profile, decaf, stamps")
-      .single();
-    setBusy(false);
-    if (error || !data) {
+    try {
+      const data = await addLoyaltyStamp({ data: { pin, id: customer.id } });
+      setCustomer(data);
+    } catch {
       setMessage("No se pudo actualizar el sello.");
-      return;
     }
-    setCustomer(data);
+    setBusy(false);
   }
 
   const hopper = customer ? recommendedHopper(customer.flavor_profile) : null;
