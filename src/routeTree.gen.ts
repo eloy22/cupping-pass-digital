@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BaristaRouteImport } from './routes/barista'
 import { Route as RegistroRouteImport } from './routes/registro'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BaristaRoute = BaristaRouteImport.update({
+  id: '/barista',
+  path: '/barista',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -25,27 +31,31 @@ const RegistroRoute = RegistroRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/barista': typeof BaristaRoute
   '/registro': typeof RegistroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/barista': typeof BaristaRoute
   '/registro': typeof RegistroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/barista': typeof BaristaRoute
   '/registro': typeof RegistroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/registro'
+  fullPaths: '/' | '/barista' | '/registro'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/registro'
-  id: '__root__' | '/' | '/registro'
+  to: '/' | '/barista' | '/registro'
+  id: '__root__' | '/' | '/barista' | '/registro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BaristaRoute: typeof BaristaRoute
   RegistroRoute: typeof RegistroRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barista': {
+      id: '/barista'
+      path: '/barista'
+      fullPath: '/barista'
+      preLoaderRoute: typeof BaristaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BaristaRoute: BaristaRoute,
   RegistroRoute: RegistroRoute,
 }
 export const routeTree = rootRouteImport
